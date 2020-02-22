@@ -17,34 +17,53 @@ function showSuccess(input){
   formControl.className = 'form-control success';
 }
 //Email Validation
-function isValidEmail(email) {
-  return email.match(/^([\w\!\#$\%\&\'\*\+\-\/\=\?\^\`{\|\}\~]+\.)*[\w\!\#$\%\&\'\*\+\-\/\=\?\^\`{\|\}\~]+@((((([a-z0-9]{1}[a-z0-9\-]{0,62}[a-z0-9]{1})|[a-z])\.)+[a-z]{2,6})|(\d{1,3}\.){3}\d{1,3}(\:\d{1,5})?)$/i);
+function isValidEmail(input) {
+  const re = /^([\w\!\#$\%\&\'\*\+\-\/\=\?\^\`{\|\}\~]+\.)*[\w\!\#$\%\&\'\*\+\-\/\=\?\^\`{\|\}\~]+@((((([a-z0-9]{1}[a-z0-9\-]{0,62}[a-z0-9]{1})|[a-z])\.)+[a-z]{2,6})|(\d{1,3}\.){3}\d{1,3}(\:\d{1,5})?)$/i
+  if(input.value.match(re)){
+    showSuccess(input)
+  } else {
+    showError(input, 'Email is not valid')
+  }
+  // return email.match(re);
 }
+//Check require fields
+function checkRequired(inputArr){
+  inputArr.forEach(function(input) {
+    if(input.value.trim() === ''){
+      showError(input, `${getFieldName(input)} is required`)
+    } else {
+      showSuccess(input)
+    }
+  })
+}
+//Create title for Fieldname
+function getFieldName(input){
+  return input.id.charAt(0).toUpperCase() + input.id.slice(1);
+}
+//Check length requirements
+function lengthRequired(input, min, max) {
+  if(input.value.length < min){
+    showError(input, `${getFieldName(input)} needs to be greater than ${min} characters`);
+  } else if(input.value.length > max) {
+    showError(input, `${getFieldName(input)} needs to be less than ${max} characters`);
+  } else {
+    showSuccess(input);
+  }
+}
+//Confirm passwords match
+function passwordMatch(input1, input2) {
+  if(input1.value !== input2.value){
+    showError(input2, 'Password does not match')
+  }
+}
+
 //Event Listeners
 form.addEventListener('submit', function(e) {
   e.preventDefault();
   
-  if(username.value === ''){
-    showError(username, 'Username is required')
-  } else {
-    showSuccess(username);
-  }
-  if(email.value === ''){
-    showError(email, 'Email is required')
-  } else if (!isValidEmail(email.value)){
-    showError(email, 'Email is not valid')
-  }
-  else {
-    showSuccess(email);
-  }
-  if(password.value === ''){
-    showError(password, 'Password is required')
-  } else {
-    showSuccess(password);
-  }
-  if(password2.value === ''){
-    showError(password2, 'Password does not match')
-  } else {
-    showSuccess(password2);
-  }
+  checkRequired([username, email, password, password2]);
+  lengthRequired(username, 3, 15);
+  lengthRequired(password, 6, 20);
+  isValidEmail(email);
+  passwordMatch(password, password2);
 })
